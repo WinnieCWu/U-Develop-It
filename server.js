@@ -178,11 +178,10 @@ app.put('/api/candidate/:id', (req, res) => {
     res.status(400).json({error:errors});
     return;
   }
-
   const sql =  `UPDATE candidates SET party_id = ?
                 WHERE id = ?`;
   
-                //the affected row's id should always be part of the route
+  //the affected row's id should always be part of the route
   //while the actual fields we're updating should be part of the body
   const params = [req.body.party_id, req.params.id];
   db.query(sql, params, (err, result) => {
