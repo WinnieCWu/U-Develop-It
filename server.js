@@ -172,6 +172,39 @@ app.get('/api/party/:id', (req, res) => {
     });
   });
 
+  //UPDATE a candidate's party
+  app.put('/api/candidate/:id', (req, res) => {
+    //ensure party_id was provided before we attempt to update the db using inputCheck() fxn
+    const errors = inputCheck(req.body, 'party_id');
+    if (errors) {
+      res.status(400).json({error:errors});
+      return;
+    }
+
+    const sql =  `UPDATE candidates SET party_id = ?
+                  WHERE id = ?`;
+    
+                  //the affected row's id should always be part of the route
+    //while the actual fields we're updating should be part of the body
+    const params = [req.body.party_id, req.params.id];
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        res.status(400).json({error: err.message});
+        //check if a record was found
+      } else if (!result.affectedRows) {
+        res.json({
+          message: 'Candidate not found'
+        });
+      } else {
+        res.json({
+          message: 'success',
+          data: req.body,
+          changes: result.affectedRows
+        });
+      }
+    });
+  });
+
 //Default/catch-all response for any other request (Not Found)
 app.use((req, res) => {
     res.status(404).end();
